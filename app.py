@@ -42,15 +42,28 @@ class TempRoutines:
                 logger.error(str(e))
 
 class VideoRoutines:    
-    async def record_video (self,folder,duration_s):
+    async def record_video (self,folder,duration_s,video_queue):
         while True:
             try:   
                 #Capture Video
                 file_name= folder + strftime("/1080p30_b12-%Y%m%d-%H%M%S")
-                command = 'raspivid -t '+ str(duration_s*100) +' -w 1436 -h 1080 -fps 30 -b 12000000 -o '+file_name +'.h264' 
-                os.system(command)
+                command = 'raspivid -t '+ str(duration_s*1000) +' -w 1436 -h 1080 -fps 30 -b 12000000 -o '+file_name +'.h264' 
                 logger.info("Recording: %s",file_name)
+                os.system(command)
                 await asyncio.sleep(duration_s)
+                await video_queue.put(file_name)
+            except Exception as e:
+                logger.error('Recording failed')
+                logger.error(str(e))
+
+    async def wrap_video (self,video_queue):
+        while True:
+            try:   
+                #convert video to mp4
+                file_name = await video_queue.get()
+                logger.info("Wrap to MP4: %s",file_name)
+                command= 'MP4Box -fps 30 -add '+file_name+ '.h264 '+ file_name +'.mp4'
+                os.system(command)  
             except Exception as e:
                 logger.error('Recording failed')
                 logger.error(str(e))
@@ -77,7 +90,7 @@ def main():
     logger.info('Running. Press CTRL-C to exit.')
     temp_routine = TempRoutines()
     video_routine = VideoRoutines()
-    #email_queue =  asyncio.Queue()
+    video_queue =  asyncio.Queue()
     loop = asyncio.get_event_loop()
 
     try:
@@ -86,9 +99,12 @@ def main():
         os.system(command) 
         logger.debug('NAS mounted')
         #Threads
-        asyncio.ensure_future(temp_routine.temp_logger(10))    #coroutine for temp log
-        asyncio.ensure_future(video_routine.record_video(folder,50))  #coroutine for video recording
-
+        asyncio.ensure_future(
+            video_routine.record_video(folder,50,video_queue))  #coroutine for video recording
+        asyncio.ensure_future(
+            temp_routine.temp_logger(10))    #coroutine for temp log
+        asyncio.ensure_future(
+            video_routine.wrap_video(video_queue))  #coroutine for video recording
         loop.run_forever()
     except KeyboardInterrupt:
         pass
