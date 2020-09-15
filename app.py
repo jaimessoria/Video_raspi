@@ -17,8 +17,6 @@ import signal
 import argparse
 import io
 import logging
-#import sys
-#import os
 import yaml
 import logging.config
 from queue import Queue
@@ -37,17 +35,27 @@ class TempRoutines:
         while True:
             try:   
                 # log temperature
-                log = await open(folder+"/cpu_temp.csv", "a")
-                await log.write("{0},{1}\n".format(strftime("%Y-%m-%d %H:%M:%S"),cpu.temperature))
-                await log.close()
+                logger.info("temp: %i",cpu.temperature)
                 await asyncio.sleep(period)
             except Exception as e:
                 logger.error('Reading temperature failed')
                 logger.error(str(e))
 
+async def shutdown(loop):
+
+    logging.info("Closing threads")
+    tasks = [t for t in asyncio.all_tasks() if t is not
+             asyncio.current_task()]
+
+    [task.cancel() for task in tasks]
+
+    logging.info(f"Cancelling {len(tasks)} outstanding tasks")
+    await asyncio.gather(*tasks, return_exceptions=True)
+    loop.stop()
+
 def setup_logging(
    default_path='logging.yaml',
-   default_level=logging.INFO,
+   default_level=logging.DEBUG,
    env_key='LOG_CFG'
 ):
    """Setup logging configuration"""
@@ -73,15 +81,23 @@ def main():
         #Mount NAS 
         command = 'sudo mount -t nfs '+ NAS +' '+folder
         os.system(command) 
+        logger.debug('NAS mounted')
+        #Threats 
         asyncio.ensure_future(temp_routine.temp_logger(folder,10)) #coroutine for temp log
         loop.run_forever()
     except KeyboardInterrupt:
         pass
     finally:
-        logger.info("Received exit signal")
-        loop.close()
+        logger.debug("Received exit signal")
+
         command = 'sudo umount /mnt/nfs'
-        os.system(command)  
+        os.system(command) 
+        logger.debug('NAS umounted')
+
+        for task in asyncio.Task.all_tasks():
+            task.cancel()
+        loop.stop()
+        logger.debug('closing thread')
   
 if __name__ == '__main__':
    main()
