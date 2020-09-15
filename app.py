@@ -17,30 +17,33 @@ import signal
 import argparse
 import io
 import logging
-import sys
-import os
+#import sys
+#import os
 import yaml
 import logging.config
 from queue import Queue
+import os
+import time
+from gpiozero import CPUTemperature
+from time import sleep, strftime, time
  
+NAS = '192.168.0.135:/Users/Leo/Documents/Raspi'
+folder = '/mnt/nfs'
+cpu = CPUTemperature(min_temp=50, max_temp=90)
 logger = logging.getLogger(__name__)
 
 class TempRoutines:    
     async def temp_logger (self,folder,period):
-        d=0
         while True:
             try:   
                 # log temperature
                 log = await open(folder+"/cpu_temp.csv", "a")
-                #await log.write("{0},{1}\n".format(strftime("%Y-%m-%d %H:%M:%S"),cpu.temperature))
-                d +=1
-                await log.write("{0}\n".format(d))
+                await log.write("{0},{1}\n".format(strftime("%Y-%m-%d %H:%M:%S"),cpu.temperature))
                 await log.close()
                 await asyncio.sleep(period)
             except Exception as e:
                 logger.error('Reading temperature failed')
                 logger.error(str(e))
-                sys.exit(1)
 
 def setup_logging(
    default_path='logging.yaml',
@@ -67,17 +70,18 @@ def main():
     loop = asyncio.get_event_loop()
 
     try:
-        asyncio.ensure_future(temp_routine.temp_logger('⁩/temp',10)) #coroutine for temp log
+        #Mount NAS 
+        command = 'sudo mount -t nfs '+ NAS +' '+folder
+        os.system(command) 
+        asyncio.ensure_future(temp_routine.temp_logger(folder,10)) #coroutine for temp log
         loop.run_forever()
     except KeyboardInterrupt:
         pass
     finally:
-       logger.info("Received exit signal")
-       loop.close()
-       sys.exit(1)
-
-    logger.info('All operations completed successfully')
-    sys.exit(0)
+        logger.info("Received exit signal")
+        loop.close()
+        command = 'sudo umount /mnt/nfs'
+        os.system(command)  
   
 if __name__ == '__main__':
    main()

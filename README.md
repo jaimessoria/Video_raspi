@@ -1,6 +1,7 @@
 # Run Application
 
-Software in python that sends out emails to recipients from a huge list (1 Mio entries) in a performant way.
+Software in python that capture video, store in NAS and compress to MP4
+The hardware used was: Rasberry pi 4 + Camera Module v1
 
 **Create Python virtual environment**
 
@@ -11,8 +12,8 @@ source .env/bin/activate
 
 **install requirements**  
 
-pip3 install -r requirements.txt
+pip3 install -r Requirements.txt
 
 **Execute**
 
-python  PerformantEmailSender.py --dbfile db/db_file.csv 
+python  app.py
