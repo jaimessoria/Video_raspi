@@ -36,7 +36,7 @@ class TempRoutines:
         while True:
             try:   
                 # log temperature
-                await logger.info("temp: %i",cpu.temperature)
+                logger.info("temp: %i",cpu.temperature)
                 await asyncio.sleep(period_s)
             except Exception as e:
                 logger.error('Reading temperature failed')
@@ -44,15 +44,15 @@ class TempRoutines:
 
 class VideoRoutines:    
     async def record_video (self,folder,duration_s,video_queue):
+        camera = PiCamera()
+        camera.resolution = (1436,1080)
+        camera.framerate = 30
         while True:
             try:   
                 #Capture Video
-                file_name= folder + strftime("/1080p30_b12-%Y%m%d-%H%M%S")
-                #command = 'raspivid -t '+ str(duration_s*1000) +' -w 1436 -h 1080 -fps 30 -b 12000000 -o '+file_name +'.h264' 
-                #logger.info("Recording: %s",file_name)
-                #await os.system(command)
-                camera = PiCamera()
-                camera.start_recording(file_name)
+                file_name= folder + strftime("/1080p30-%Y%m%d-%H%M%S")
+                logger.info("Recording: %s",file_name)
+                camera.start_recording(file_name+'.h264')
                 await asyncio.sleep(duration_s)
                 camera.stop_recording()
                 logger.info("cola: %s",file_name)
@@ -105,7 +105,7 @@ def main():
         logger.debug('NAS mounted')
         #Threads
         asyncio.ensure_future(
-            video_routine.record_video(folder,50,video_queue))  #coroutine for video recording
+            video_routine.record_video(folder,30,video_queue))  #coroutine for video recording
         asyncio.ensure_future(
             temp_routine.temp_logger(10))    #coroutine for temp log
         asyncio.ensure_future(
