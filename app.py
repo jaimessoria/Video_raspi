@@ -31,27 +31,29 @@ cpu = CPUTemperature(min_temp=50, max_temp=90)
 logger = logging.getLogger(__name__)
 
 class TempRoutines:    
-    async def temp_logger (self,folder,period):
+    async def temp_logger (self,period_s):
         while True:
             try:   
                 # log temperature
                 logger.info("temp: %i",cpu.temperature)
-                await asyncio.sleep(period)
+                await asyncio.sleep(period_s)
             except Exception as e:
                 logger.error('Reading temperature failed')
                 logger.error(str(e))
 
-async def shutdown(loop):
-
-    logging.info("Closing threads")
-    tasks = [t for t in asyncio.all_tasks() if t is not
-             asyncio.current_task()]
-
-    [task.cancel() for task in tasks]
-
-    logging.info(f"Cancelling {len(tasks)} outstanding tasks")
-    await asyncio.gather(*tasks, return_exceptions=True)
-    loop.stop()
+class VideoRoutines:    
+    async def record_video (self,folder,duration_s):
+        while True:
+            try:   
+                #Capture Video
+                file_name= folder + strftime("/1080p30_b12-%Y%m%d-%H%M%S")
+                command = 'raspivid -t '+ str(duration_s*100) +' -w 1436 -h 1080 -fps 30 -b 12000000 -o '+file_name +'.h264' 
+                os.system(command)
+                logger.info("Recording: %s",file_name)
+                await asyncio.sleep(duration_s)
+            except Exception as e:
+                logger.error('Recording failed')
+                logger.error(str(e))
 
 def setup_logging(
    default_path='logging.yaml',
@@ -74,6 +76,7 @@ def main():
     setup_logging()
     logger.info('Running. Press CTRL-C to exit.')
     temp_routine = TempRoutines()
+    video_routine = VideoRoutines()
     #email_queue =  asyncio.Queue()
     loop = asyncio.get_event_loop()
 
@@ -82,8 +85,10 @@ def main():
         command = 'sudo mount -t nfs '+ NAS +' '+folder
         os.system(command) 
         logger.debug('NAS mounted')
-        #Threats 
-        asyncio.ensure_future(temp_routine.temp_logger(folder,10)) #coroutine for temp log
+        #Threads
+        asyncio.ensure_future(temp_routine.temp_logger(10))    #coroutine for temp log
+        asyncio.ensure_future(video_routine.record_video(folder,50))  #coroutine for video recording
+
         loop.run_forever()
     except KeyboardInterrupt:
         pass
@@ -94,10 +99,10 @@ def main():
         os.system(command) 
         logger.debug('NAS umounted')
 
+        logger.debug('closing thread')
         for task in asyncio.Task.all_tasks():
             task.cancel()
         loop.stop()
-        logger.debug('closing thread')
   
 if __name__ == '__main__':
    main()
