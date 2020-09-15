@@ -1,0 +1,25 @@
+2020-09-15 13:36:08,061 - __main__ - INFO - Running. Press CTRL-C to exit.
+2020-09-15 13:36:08,067 - __main__ - ERROR - Reading temperature failed
+2020-09-15 13:36:08,068 - __main__ - ERROR - [Errno 2] No such file or directory: '/temp/cpu_temp.csv'
+2020-09-15 13:36:08,068 - __main__ - INFO - Received exit signal
+2020-09-15 13:36:08,073 - asyncio - ERROR - Task exception was never retrieved
+future: <Task finished name='Task-1' coro=<TempRoutines.temp_logger() done, defined at app.py:29> exception=SystemExit(1)>
+Traceback (most recent call last):
+  File "app.py", line 34, in temp_logger
+    log = await open(folder+"/cpu_temp.csv", "a")
+FileNotFoundError: [Errno 2] No such file or directory: '/temp/cpu_temp.csv'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "app.py", line 71, in main
+    loop.run_forever()
+  File "/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/asyncio/base_events.py", line 570, in run_forever
+    self._run_once()
+  File "/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/asyncio/base_events.py", line 1859, in _run_once
+    handle._run()
+  File "/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/asyncio/events.py", line 81, in _run
+    self._context.run(self._callback, *self._args)
+  File "app.py", line 43, in temp_logger
+    sys.exit(1)
+SystemExit: 1
