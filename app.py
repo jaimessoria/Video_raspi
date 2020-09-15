@@ -24,6 +24,7 @@ import os
 import time
 from gpiozero import CPUTemperature
 from time import sleep, strftime, time
+from picamera import PiCamera
  
 NAS = '192.168.0.135:/Users/Leo/Documents/Raspi'
 folder = '/mnt/nfs'
@@ -35,7 +36,7 @@ class TempRoutines:
         while True:
             try:   
                 # log temperature
-                logger.info("temp: %i",cpu.temperature)
+                await logger.info("temp: %i",cpu.temperature)
                 await asyncio.sleep(period_s)
             except Exception as e:
                 logger.error('Reading temperature failed')
@@ -47,10 +48,14 @@ class VideoRoutines:
             try:   
                 #Capture Video
                 file_name= folder + strftime("/1080p30_b12-%Y%m%d-%H%M%S")
-                command = 'raspivid -t '+ str(duration_s*1000) +' -w 1436 -h 1080 -fps 30 -b 12000000 -o '+file_name +'.h264' 
-                logger.info("Recording: %s",file_name)
-                os.system(command)
+                #command = 'raspivid -t '+ str(duration_s*1000) +' -w 1436 -h 1080 -fps 30 -b 12000000 -o '+file_name +'.h264' 
+                #logger.info("Recording: %s",file_name)
+                #await os.system(command)
+                camera = PiCamera()
+                camera.start_recording(file_name)
                 await asyncio.sleep(duration_s)
+                camera.stop_recording()
+                logger.info("cola: %s",file_name)
                 await video_queue.put(file_name)
             except Exception as e:
                 logger.error('Recording failed')
