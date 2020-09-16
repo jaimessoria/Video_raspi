@@ -13,8 +13,6 @@
 ###############################################################################
 
 import asyncio
-#import signal
-#import io
 import logging
 import yaml
 import logging.config
@@ -23,12 +21,11 @@ import time
 from queue import Queue
 from gpiozero import CPUTemperature
 from time import sleep, strftime, time
-#from picamera import PiCamera
 import subprocess,shlex
  
 NAS = '192.168.0.135:/Users/Leo/Documents/Raspi'
 folder = '/mnt/nfs'
-cpu = CPUTemperature(min_temp=50, max_temp=90)
+cpu = CPUTemperature(min_temp=40, max_temp=90)
 logger = logging.getLogger(__name__)
 
 class TempRoutines:    
@@ -47,10 +44,10 @@ class VideoRoutines:
         while True:
             try:   
                 #Capture Video
-                file_name= folder + strftime("/1080p30-%Y%m%d-%H%M%S")
+                file_name= folder + strftime("/1080p25-%Y%m%d-%H%M%S")
                 logger.info("Recording: %s",file_name)
                 command= shlex.split('raspivid -t '+ str(duration_s*100) +
-                    ' -w 1436 -h 1080 -fps 30 -b 12000000 -o '+file_name +'.h264')
+                    ' -w 1436 -h 1080 -fps 25 -b 17000000 -o '+file_name +'.h264')
                 p = subprocess.Popen(command)
                 await asyncio.sleep(duration_s)
                 await video_queue.put(file_name)
