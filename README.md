@@ -16,4 +16,4 @@ pip3 install -r Requirements.txt
 
 **Execute**
 
-python  app.py
+python3  app.py

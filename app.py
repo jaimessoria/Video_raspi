@@ -13,18 +13,18 @@
 ###############################################################################
 
 import asyncio
-import signal
-import argparse
-import io
+#import signal
+#import io
 import logging
 import yaml
 import logging.config
-from queue import Queue
 import os
 import time
+from queue import Queue
 from gpiozero import CPUTemperature
 from time import sleep, strftime, time
-from picamera import PiCamera
+#from picamera import PiCamera
+import subprocess,shlex
  
 NAS = '192.168.0.135:/Users/Leo/Documents/Raspi'
 folder = '/mnt/nfs'
@@ -44,22 +44,20 @@ class TempRoutines:
 
 class VideoRoutines:    
     async def record_video (self,folder,duration_s,video_queue):
-        camera = PiCamera()
-        camera.resolution = (1436,1080)
-        camera.framerate = 30
         while True:
             try:   
                 #Capture Video
                 file_name= folder + strftime("/1080p30-%Y%m%d-%H%M%S")
                 logger.info("Recording: %s",file_name)
-                camera.start_recording(file_name+'.h264')
+                command= shlex.split('raspivid -t '+ str(duration_s*100) +
+                    ' -w 1436 -h 1080 -fps 30 -b 12000000 -o '+file_name +'.h264')
+                p = subprocess.Popen(command)
                 await asyncio.sleep(duration_s)
-                camera.stop_recording()
-                logger.info("cola: %s",file_name)
                 await video_queue.put(file_name)
             except Exception as e:
                 logger.error('Recording failed')
                 logger.error(str(e))
+                p.terminate()
 
     async def wrap_video (self,video_queue):
         while True:
@@ -67,11 +65,13 @@ class VideoRoutines:
                 #convert video to mp4
                 file_name = await video_queue.get()
                 logger.info("Wrap to MP4: %s",file_name)
-                command= 'MP4Box -fps 30 -add '+file_name+ '.h264 '+ file_name +'.mp4'
-                os.system(command)  
+                command= shlex.split('MP4Box -fps 30 -add ' 
+                        +file_name+ '.h264 '+ file_name +'.mp4')
+                p = subprocess.Popen(command)
             except Exception as e:
-                logger.error('Recording failed')
+                logger.error('warping failed')
                 logger.error(str(e))
+                p.terminate()
 
 def setup_logging(
    default_path='logging.yaml',
@@ -107,7 +107,7 @@ def main():
         asyncio.ensure_future(
             video_routine.record_video(folder,30,video_queue))  #coroutine for video recording
         asyncio.ensure_future(
-            temp_routine.temp_logger(10))    #coroutine for temp log
+            temp_routine.temp_logger(1))    #coroutine for temp log
         asyncio.ensure_future(
             video_routine.wrap_video(video_queue))  #coroutine for video recording
         loop.run_forever()
