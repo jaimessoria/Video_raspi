@@ -1,0 +1,28 @@
+2020-09-17 18:45:27,614 - __main__ - INFO - Running. Press CTRL-C to exit.
+2020-09-17 18:45:27,615 - asyncio - DEBUG - Using selector: EpollSelector
+2020-09-17 18:45:28,501 - __main__ - DEBUG - NAS mounted
+2020-09-17 18:45:28,503 - __main__ - INFO - Recording: /mnt/nfs/1080p25-20200917-184528
+2020-09-17 18:45:28,514 - __main__ - INFO - temp: 36
+2020-09-17 18:45:29,518 - __main__ - INFO - temp: 36
+2020-09-17 18:45:30,521 - __main__ - INFO - temp: 36
+2020-09-17 18:45:31,172 - __main__ - DEBUG - Received exit signal
+2020-09-17 18:45:31,567 - __main__ - DEBUG - NAS umounted
+2020-09-17 18:45:31,568 - __main__ - DEBUG - closing thread
+2020-09-17 20:45:46,534 - __main__ - INFO - Running. Press CTRL-C to exit.
+2020-09-17 20:45:46,540 - asyncio - DEBUG - Using selector: EpollSelector
+2020-09-17 20:45:46,543 - __main__ - INFO - waiting NAS
+2020-09-17 20:46:14,777 - __main__ - INFO - Running. Press CTRL-C to exit.
+2020-09-17 20:46:14,783 - asyncio - DEBUG - Using selector: EpollSelector
+2020-09-17 20:46:14,787 - __main__ - INFO - waiting NAS
+2020-09-17 20:46:16,079 - __main__ - DEBUG - NAS mounted
+2020-09-17 20:46:16,084 - __main__ - INFO - Recording: /mnt/nfs/1080p25-20200917-204616
+2020-09-17 20:46:16,107 - __main__ - INFO - temp: 41
+2020-09-17 20:46:17,113 - __main__ - INFO - temp: 40
+2020-09-17 20:46:18,116 - __main__ - INFO - temp: 39
+2020-09-17 20:46:19,120 - __main__ - INFO - temp: 40
+2020-09-17 20:46:20,124 - __main__ - INFO - temp: 39
+2020-09-17 20:46:21,128 - __main__ - INFO - temp: 40
+2020-09-17 20:46:22,133 - __main__ - INFO - temp: 40
+2020-09-17 20:47:12,238 - __main__ - INFO - Running. Press CTRL-C to exit.
+2020-09-17 20:47:12,246 - asyncio - DEBUG - Using selector: EpollSelector
+2020-09-17 20:47:12,251 - __main__ - INFO - waiting NAS
