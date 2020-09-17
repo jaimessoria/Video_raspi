@@ -25,7 +25,7 @@ import subprocess,shlex
  
 NAS = '192.168.0.135:/Users/Leo/Documents/Raspi'
 folder = '/mnt/nfs'
-cpu = CPUTemperature(min_temp=40, max_temp=90)
+cpu = CPUTemperature(min_temp=30, max_temp=90)
 logger = logging.getLogger(__name__)
 
 class TempRoutines:    
@@ -39,36 +39,50 @@ class TempRoutines:
                 logger.error('Reading temperature failed')
                 logger.error(str(e))
 
-class VideoRoutines:    
+class VideoRoutines:
+    def __init__(self,symbol=None):
+        self.Stp_time_s = 2
+
     async def record_video_m (self,folder,duration_m,video_queue):
         while True:
             try:   
                 #Capture Video
                 file_name= folder + strftime("/1080p25-%Y%m%d-%H%M%S")
                 logger.info("Recording: %s",file_name)
-                command= shlex.split('raspivid -t '+ str(duration_m*60000) +
+                command= shlex.split('raspivid -t '+ str(duration_m*60000) + 
                     ' -w 1436 -h 1080 -fps 25 -b 17000000 -o '+file_name +'.h264')
-                p = subprocess.Popen(command)
-                await asyncio.sleep(duration_m*60)
+                p3 = subprocess.Popen(command)
+                await asyncio.sleep(duration_m*60+self.Stp_time_s)
                 await video_queue.put(file_name)
             except Exception as e:
                 logger.error('Recording failed')
                 logger.error(str(e))
-                p.terminate()
+                p3.terminate()
 
     async def wrap_video (self,video_queue):
+        del_h264 = False
+        prev_file_name = ''
         while True:
             try:   
                 #convert video to mp4
                 file_name = await video_queue.get()
-                logger.info("Wrap to MP4: %s",file_name)
+                if del_h264:
+                    del_h264 = False
+                    logger.debug("Delete: %s",prev_file_name)
+                    command= shlex.split('sudo rm '+ prev_file_name +'.h264 ')
+                    p2 = subprocess.Popen(command)
+
+                logger.debug("Wrap to MP4: %s",file_name)
                 command= shlex.split('MP4Box -fps 25 -add ' 
                         +file_name+ '.h264 '+ file_name +'.mp4')
                 p = subprocess.Popen(command)
+                del_h264 = True
+                prev_file_name = file_name
             except Exception as e:
                 logger.error('warping failed')
                 logger.error(str(e))
                 p.terminate()
+                p2.terminate()
 
 def setup_logging(
    default_path='logging.yaml',
