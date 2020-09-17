@@ -114,11 +114,13 @@ def main():
     try:
 #       response = ping('192.168.0.135', size=40, count=10)
 #       while not response.success:
-        logger.info('waiting NAS')
-        sleep(60)
+#       sleep(60)
 #       response = ping('192.168.0.135', size=40, count=10)
 #       r = pyping.ping(NAS)
+
         #Mount NAS 
+        logger.info('waiting NAS')
+        sleep(60)
         command = 'sudo mount -t nfs '+ NAS +' '+folder
         os.system(command) 
         logger.debug('NAS mounted')
