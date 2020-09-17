@@ -54,5 +54,5 @@ python3  /git/Video_raspi/app.py
 
 **Run scrip in startup**
 sudo nano /etc/rc.local
-sudo python3 /git/Video_raspi/app.py &
+python3 /git/Video_raspi/app.py &
 sudo reboot
