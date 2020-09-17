@@ -40,16 +40,16 @@ class TempRoutines:
                 logger.error(str(e))
 
 class VideoRoutines:    
-    async def record_video (self,folder,duration_s,video_queue):
+    async def record_video_m (self,folder,duration_m,video_queue):
         while True:
             try:   
                 #Capture Video
                 file_name= folder + strftime("/1080p25-%Y%m%d-%H%M%S")
                 logger.info("Recording: %s",file_name)
-                command= shlex.split('raspivid -t '+ str(duration_s*100) +
+                command= shlex.split('raspivid -t '+ str(duration_m*60000) +
                     ' -w 1436 -h 1080 -fps 25 -b 17000000 -o '+file_name +'.h264')
                 p = subprocess.Popen(command)
-                await asyncio.sleep(duration_s)
+                await asyncio.sleep(duration_m*60)
                 await video_queue.put(file_name)
             except Exception as e:
                 logger.error('Recording failed')
@@ -62,7 +62,7 @@ class VideoRoutines:
                 #convert video to mp4
                 file_name = await video_queue.get()
                 logger.info("Wrap to MP4: %s",file_name)
-                command= shlex.split('MP4Box -fps 30 -add ' 
+                command= shlex.split('MP4Box -fps 25 -add ' 
                         +file_name+ '.h264 '+ file_name +'.mp4')
                 p = subprocess.Popen(command)
             except Exception as e:
@@ -102,7 +102,7 @@ def main():
         logger.debug('NAS mounted')
         #Threads
         asyncio.ensure_future(
-            video_routine.record_video(folder,30,video_queue))  #coroutine for video recording
+            video_routine.record_video_m(folder,1,video_queue))  #coroutine for video recording
         asyncio.ensure_future(
             temp_routine.temp_logger(1))    #coroutine for temp log
         asyncio.ensure_future(
