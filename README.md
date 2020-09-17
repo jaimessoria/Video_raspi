@@ -3,7 +3,7 @@
 Software in python that capture video, store in NAS and compress to MP4
 The hardware used was: Rasberry pi 4 + Camera Module v1
 
-## instalation 
+## installation 
 
 **RasPi OS**
 1) Install OS: Use the Raspberry Pi Imager for macOS (https://www.raspberrypi.org/downloads/)
