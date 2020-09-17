@@ -50,7 +50,8 @@ class VideoRoutines:
                 file_name= folder + strftime("/1080p25-%Y%m%d-%H%M%S")
                 logger.info("Recording: %s",file_name)
                 command= shlex.split('raspivid -t '+ str(duration_m*60000) + 
-                    ' -w 1436 -h 1080 -fps 25 -b 17000000 -o '+file_name +'.h264')
+                    ' -w 1436 -h 1080 -a 12 -drc high -fps 25 -b 17000000 -o '
+                    + file_name +'.h264')
                 p3 = subprocess.Popen(command)
                 await asyncio.sleep(duration_m*60+self.Stp_time_s)
                 await video_queue.put(file_name)
@@ -68,7 +69,7 @@ class VideoRoutines:
                 file_name = await video_queue.get()
                 if del_h264:
                     del_h264 = False
-                    logger.debug("Delete: %s",prev_file_name)
+                    logger.debug("Delete: %s.h264",prev_file_name)
                     command= shlex.split('sudo rm '+ prev_file_name +'.h264 ')
                     p2 = subprocess.Popen(command)
 
