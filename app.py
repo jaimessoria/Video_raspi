@@ -111,14 +111,13 @@ def main():
     video_queue =  asyncio.Queue()
     loop = asyncio.get_event_loop()
 
-#    response = ping('192.168.0.135', size=40, count=10)
-#    while not response.success:
-    logger.info('waiting NAS')
-    sleep(60)
-#        response = ping('192.168.0.135', size=40, count=10)
-#        #r = pyping.ping(NAS)
-
     try:
+#       response = ping('192.168.0.135', size=40, count=10)
+#       while not response.success:
+        logger.info('waiting NAS')
+        sleep(60)
+#       response = ping('192.168.0.135', size=40, count=10)
+#       r = pyping.ping(NAS)
         #Mount NAS 
         command = 'sudo mount -t nfs '+ NAS +' '+folder
         os.system(command) 

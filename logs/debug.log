@@ -26,3 +26,6 @@
 2020-09-17 20:47:12,238 - __main__ - INFO - Running. Press CTRL-C to exit.
 2020-09-17 20:47:12,246 - asyncio - DEBUG - Using selector: EpollSelector
 2020-09-17 20:47:12,251 - __main__ - INFO - waiting NAS
+2020-09-17 20:48:13,541 - __main__ - INFO - Running. Press CTRL-C to exit.
+2020-09-17 20:48:13,542 - asyncio - DEBUG - Using selector: EpollSelector
+2020-09-17 20:48:13,543 - __main__ - INFO - waiting NAS
